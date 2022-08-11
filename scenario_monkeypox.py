@@ -66,7 +66,8 @@ if __name__ == "__main__":
     # Model parameters based on COVID-19 - need to be updated for monkeypox
     monkeypox_sig_eps = 0.7224738559305864
     monkeypox_rep_rate = 0.05 
-    monkeypox_cfr = 0.016 #case-fallity rate
+    monkeypox_cfr = 0.0004 #case-fallity rate; as of August 20, 2022, WHO reported 11 deaths and 27814 cases
+    #https://www.who.int/publications/m/item/multi-country-outbreak-of-monkeypox--external-situation-report--3---10-august-2022
 
     #Baseline exposed (i.e., incubation period) and infecious period
     D_e = 10 

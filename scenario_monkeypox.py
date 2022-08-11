@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     #Baseline exposed (i.e., incubation period) and infecious period
     D_e = 10 
-    D_i = 14
+    D_i = 21
     
     #Create output csv files 
     def save_output_to_csv(model, samples, time, append='', folder=True, plot=True):

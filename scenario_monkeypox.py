@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
             #Assumes some social distancing / reducing number of partners to reduce contact numbers that affects R0 reduction 
             #This assumption needs to be calibrated better
-            dates2= ["2022-06-05"]
+            dates2= ["2022-06-15"]
             values2 = [monkeypox_base_R0 * 0.95] #contact rates reduced by 5%           
 
             #Basically it updates the values of R0 on the corresponding dates   

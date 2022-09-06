@@ -177,3 +177,14 @@ def prevalence_and_mortality(prevalence_date, model, time, population_samples, c
     print(mortality_date)
     print("Hypothetical mortality = {0:0.0f} ({1:0.0f}, {2:0.0f})".format(m_mean, m_low, m_high))
     print("Hypothetical cum infections = %i" % h_cumulative_inf.mean(axis=0)[-1])
+
+def sigmoid_interpolation(start:float, end:float, num:int):
+    x = np.linspace(-2.5, 2.5, num) if start < end else np.linspace(2.5, -2.5,  num)
+    delta = abs(end-start)
+    sig = 1 / (1 + np.exp(-x))
+    sig = sig - np.min(sig)
+    sig = sig / np.max(sig)
+    smoothed = delta*sig + min(start, end)
+    smoothed[0] = start
+    smoothed[-1] = end
+    return smoothed

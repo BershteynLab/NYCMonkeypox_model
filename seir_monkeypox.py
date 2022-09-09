@@ -13,13 +13,13 @@ class LogNormalSEIR(object):
 	I_t = (1/D_e)*E{t-1} + (1-(1/D_i))*I_{t-1}
 	D_e, D_i, z_t, and the initial condition are assumed known. """
 
-    def __init__(self, S0, D_e, D_i, z_t):
+    def __init__(self, S0, D_e, D_i, z_t, add_z_to_inf = False):
         # Store the known model parameters
         self.z_t = z_t
         self.S0 = S0
         self.D_e = D_e
         self.D_i = D_i
-        
+        self.add_z_to_inf = add_z_to_inf
         # Create a time axis
         self.T = len(z_t)
         self.time = np.arange(self.T)
@@ -27,7 +27,7 @@ class LogNormalSEIR(object):
         # Mark the model as un-fit, which means parameters are missing.
         self._fit = False
 
-    def sample_scenario(self, beta, immune_num, num_samples=5000):
+    def sample_scenario(self, beta, immune_num, num_samples=1):
         # Allocate storage for the output, and set up the
         # initial condition.
         X = np.zeros((num_samples, 6, self.T))
@@ -36,17 +36,19 @@ class LogNormalSEIR(object):
         # Loop over time and collect samples
         for t in range(1, self.T):
             # Sample eps_t
-            eps_t = np.exp(np.random.normal(0, self.sig_eps, size=(num_samples,)))
+            eps_t = 1#np.exp(np.random.normal(0, self.sig_eps, size=(num_samples,)))
 
             # Update all the deterministic components (S and I)
             X[:, 0, t] = X[:, 0, t - 1] - beta[t] * X[:, 0, t - 1] * (X[:, 2, t - 1]  + self.z_t[t - 1]) * eps_t - X[:, 4, t - 1]
 
-            #Infectious comparment
-            X[:, 2, t] = X[:, 1, t - 1] / self.D_e + X[:, 2, t - 1] * (1. - (1. / self.D_i))    
-             
+            add_z = self.z_t[t] if self.add_z_to_inf else 0
+
            # Update the exposed compartment 
             X[:, 1, t] = beta[t] *  X[:, 0, t - 1] * (X[:, 2, t - 1] + self.z_t[t - 1]) * eps_t \
-                         + X[:, 1, t - 1] * (1. - (1. / self.D_e)) 
+                         + X[:, 1, t - 1] * (1. - (1. / self.D_e))  + add_z
+             
+            #Infectious comparment
+            X[:, 2, t] = X[:, 1, t - 1] / self.D_e + X[:, 2, t - 1] * (1. - (1. / self.D_i)) 
             
             #R compartment
             X[:, 3, t] = X[:, 2, t - 1] * (1 / self.D_i) +  X[:, 3, t-1] \

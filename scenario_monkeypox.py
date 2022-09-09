@@ -64,7 +64,7 @@ def calc_cost(sim_results, percent_diagnosed = 1):
     case_df.loc[:,'sim_counts'] = sim_results * percent_diagnosed
     case_df['err'] = case_df["count"] - case_df['sim_counts']
     case_df['se'] = case_df['err'] * case_df['err']
-    return case_df.loc["2022-06-15":,"se"].mean()
+    return case_df.loc[:,"se"].mean()
     #Create output csv files 
 
 def save_output_to_csv (new_infections, output_combined, append=''):
@@ -123,7 +123,7 @@ def sim_monkeypox(immune_num_effects,
 
     # Reindex the scenarios to a particular time
     # horizon.
-    time = pd.date_range(start="2022-05-01", end="2022-08-31", freq="d")
+    time = pd.date_range(start="2022-05-01", end="2022-09-24", freq="d")
 
     #Assumes some social distancing / reducing number of partners to reduce contact numbers that affects R0 reduction 
     #This assumption needs to be calibrated better

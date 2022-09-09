@@ -5,11 +5,11 @@ import pandas as pd
 import numpy as np
 
 #Daily vaccination trends - THIS NEEDS TO BE UPDATED up to the current daily doses of vaccination then use the projections offerred by DoHMH as shown in the csv file
-vaccine_trend = pd.read_csv('doses-by-day.csv', parse_dates=["date"])
+vaccine_trend = pd.read_csv('monkeypox_vx_trend_8-19.csv', parse_dates=["date"])
 vaccine= np.array(vaccine_trend['vx_doses'])
 
 #Move people from S to R at 21 days after the first dose - assume that everyone will be eventually fully vaccinated
-vaccine_date = vaccine_trend.date# pd.date_range(start="2022-06-23", end="2021-08-31")
+vaccine_date = pd.date_range(start="2022-06-23", end="2021-09-25")
 vaccine_date_list = list(vaccine_date)
 immune_date_list = list(vaccine_date + dt.timedelta(days=5))
 immune_date = [date.strftime('%Y-%m-%d') for date in immune_date_list]
@@ -54,9 +54,7 @@ def best_fit(params: dict):
 
 if __name__ == "__main__":
     study = optuna.create_study()
-    study.optimize(objective, n_trials=10_000)
-    percent_diagnosed = study.best_params.pop('percent_diagnosed', 1)
-    ts = ts_wrapper( **study.best_params, write_output_to_csv=True )
-    print(study.best_params, percent_diagnosed)
-    scenario_monkeypox.plot_results(ts, percent_diagnosed=study.best_params.get('percent_diagnosed',1))
+    study.optimize(objective, n_trials=1_000)
+    print(study.best_params)
+    ts = best_fit( study.best_params )
 

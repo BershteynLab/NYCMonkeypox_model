@@ -1,28 +1,15 @@
 
-#import sys
 import os
 
-# Standard imports
 import random
-import sys
 
 random.seed(4475772444933854010)
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import csv
-import datetime as dt
-import time
 from datetime import timedelta
-from datetime import datetime
-from scipy.optimize import curve_fit
-from scipy.interpolate import interp1d
-from scipy.stats import dweibull
-from scipy.stats import weibull_min
 import matplotlib.pyplot as plt
-import math
-from functools import reduce
 import matplotlib.pyplot as plt
 
 # For time-series modeling
@@ -30,7 +17,6 @@ from seir_monkeypox import LogNormalSEIR
 from helpers_monkeypox import *
 np.set_printoptions(threshold=np.inf)
 
-#sys.path.append(os.pardir)
 output_path = "./"    
 data_file = 'cases-by-day.csv'    
 actual_cases = pd.read_csv(data_file, parse_dates=["diagnosis_date"]).set_index("diagnosis_date")
@@ -38,7 +24,6 @@ region = 'nyc'
 
 
 def plot_results(sim_results, percent_diagnosed = 1):
-    #sim_results = sim_results.shift(periods=10)
     plt.figure(figsize=(12,5))
     case_df = actual_cases.loc[actual_cases['incomplete'] == '-',:].copy()
     case_df.loc[:,'sim_counts'] = sim_results * percent_diagnosed
@@ -59,13 +44,11 @@ def plot_results(sim_results, percent_diagnosed = 1):
     plt.savefig("BestFitCumulative.png")
 
 def calc_cost(sim_results, percent_diagnosed = 1):
-    #sim_results = sim_results.shift(periods=10) # add lag
     case_df = actual_cases.loc[actual_cases['incomplete'] == '-',:].copy()
     case_df.loc[:,'sim_counts'] = sim_results * percent_diagnosed
     case_df['err'] = case_df["count"] - case_df['sim_counts']
     case_df['se'] = case_df['err'] * case_df['err']
     return case_df.loc[:,"se"].mean()
-    #Create output csv files 
 
 def save_output_to_csv (new_infections, output_combined, append=''):
     output_dir = os.path.join(output_path,"simulations/")
@@ -190,9 +173,6 @@ if __name__ == "__main__":
     vaccine_trend = pd.read_csv('doses-by-day.csv')
     vaccine= np.array(vaccine_trend['vx_doses'])
     
-    #Defining different R0 values to test initially 
-    R0_list = np.arange(1.5,3.0,0.1)#np.array([2.68]*10)#np.arange(2.6,2.8,0.01)
-    error_list = []
 
     #Move people from S to R at 21 days after the first dose - assume that everyone will be eventually fully vaccinated
     vaccine_date = pd.date_range(start="2022-06-23", end="2021-08-31")
@@ -212,13 +192,7 @@ if __name__ == "__main__":
     monkeypox_cfr = 0.0004 #case-fallity rate; as of August 20, 2022, WHO reported 11 deaths and 27814 cases
     #https://www.who.int/publications/m/item/multi-country-outbreak-of-monkeypox--external-situation-report--3---10-august-2022
 
-    #Baseline exposed (i.e., incubation period) and infecious period
-    D_e = 10 
-    D_i = 21
-    
 
     ts = sim_monkeypox(immune, **{'monkeypox_base_R0': 2.9986688954266496, 'g_i': 20, 'social_distance_effect': 0.6557988738343147, 'social_distance_start_date': "2022-07-27"})
-    #**{'monkeypox_base_R0': 4.250724804162295, 'g_i': 18, 'social_distance_effect': 0.11352545356229893})
     cost = calc_cost(ts)
     plot_results(ts, percent_diagnosed = 0.8989031388159953 )
-#                                    save_output_to_csv(hypothetical_scenario, population_samples, time=time, append=append, folder = scenario_char, plot=False)

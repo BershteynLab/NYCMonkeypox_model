@@ -16,6 +16,10 @@ immune_date = [date.strftime('%Y-%m-%d') for date in immune_date_list]
 
 
 def objective(trial : optuna.trial.BaseTrial):
+    """
+    Objective function for optuna. First, the parameters are set. Then, the simulation is run.
+    Finally, the mean squared error is calculated and returned.
+    """
     monkeypox_base_R0 = trial.suggest_float('monkeypox_base_R0', 0.5, 4)
     g_i = trial.suggest_int("g_i",1, 20)
     social_distance_effect = trial.suggest_float('social_distance_effect', 0.5, 1. )
@@ -33,6 +37,9 @@ def objective(trial : optuna.trial.BaseTrial):
     return scenario_monkeypox.calc_cost(ts, percent_diagnosed)
 
 def ts_wrapper(vaccine_efficacy, infectious_period, incubation_period, monkeypox_base_R0, g_i, social_distance_effect, social_distance_date_offset, population=70_180, **kwargs):
+    """
+    Wrapper around the simulation for easy calling by the objective function.
+    """
     social_distance_date  = dt.date(2022, 7, 15) + dt.timedelta(days=social_distance_date_offset)
     immune = dict(zip(immune_date, vaccine*vaccine_efficacy))
     ts = scenario_monkeypox.sim_monkeypox(immune, monkeypox_base_R0=monkeypox_base_R0, g_i=g_i, 
@@ -41,11 +48,15 @@ def ts_wrapper(vaccine_efficacy, infectious_period, incubation_period, monkeypox
     return ts
 
 
+# Saved params for easy access
 params_low_pop = {'monkeypox_base_R0': 3.925127737879024, 'g_i': 5, 'social_distance_effect': 0.500790748619936, 'social_distance_date_offset': 0, 'vaccine_efficacy': 0.936377094886125, 'incubation_period': 9.13966250883466, 'infectious_period': 19.915887897884716, 'population': 10815.236226783223}
 params_const_pop = {'monkeypox_base_R0': 3.780016395948963, 'g_i': 19, 'social_distance_effect': 0.5640281290816059, 'percent_diagnosed': 0.06019924509957085, 'social_distance_date_offset': 1, 'vaccine_efficacy': 0.7729386265600666, 'incubation_period': 7.498379751088684, 'infectious_period': 14.015280924828911}
-params_const_pop_2 = {'monkeypox_base_R0': 3.88022809669701, 'g_i': 12, 'social_distance_effect': 0.6479778002157617, 'percent_diagnosed': 0.08321806547304156, 'social_distance_date_offset': -8, 'vaccine_efficacy': 0.9257821522584757, 'incubation_period': 7.241039157180664, 'infectious_period': 15.58241232309041}
+
 
 def best_fit(params: dict):
+    """
+    Plot a set of params and save the results to a csv
+    """
     percent_diagnosed = params.pop('percent_diagnosed', 1)
     ts = ts_wrapper(**params, write_output_to_csv=True)
     scenario_monkeypox.plot_results(ts, percent_diagnosed=percent_diagnosed)
